@@ -1022,4 +1022,443 @@ jest.config.js
 
 **🎯 Consejo:** Crear en este orden te permitirá **probar cada fase** antes de continuar con la siguiente, evitando errores de dependencias.
 
-¿Quieres que empecemos con alguna fase específica o prefieres que te dé el contenido de los primeros archivos de configuración?
+# 📋 **README - Sistema de Catequesis Frontend**
+
+## 🎯 **Resumen de Implementación Actual**
+
+Este documento resume todo lo implementado hasta ahora en el frontend del Sistema de Catequesis desarrollado en **Next.js 14 + TypeScript + Tailwind CSS v3**.
+
+---
+
+## ✅ **FASES COMPLETADAS**
+
+### 🏗️ **FASE 3: Tipos y Constantes (COMPLETADA)**
+
+**📁 Ubicación:** `src/lib/types/` y `src/lib/utils/`
+
+#### **Tipos TypeScript Implementados:**
+
+| Archivo | Descripción | Elementos Clave |
+|---------|-------------|-----------------|
+| `auth.ts` | Tipos de autenticación y JWT | `User`, `LoginCredentials`, `UserRole`, `AuthContextType`, `JWTPayload` |
+| `api.ts` | Tipos de API y respuestas | `ApiResponse`, `ApiError`, `BackendAdapter`, `PaginationParams` |
+| `models.ts` | Modelos del sistema de catequesis | `Catequizando`, `Parroquia`, `Grupo`, `Inscripcion`, `Asistencia`, `Certificado` |
+| `ui.ts` | Tipos de componentes UI | `ButtonProps`, `InputProps`, `TableProps`, `ModalProps`, `FormField` |
+
+#### **Utilidades Implementadas:**
+
+| Archivo | Descripción | Funciones Principales |
+|---------|-------------|----------------------|
+| `constants.ts` | Constantes del sistema | Roles, permisos, estados, configuraciones de UI/UX |
+| `formatters.ts` | Funciones de formateo | Fechas, números, monedas, texto, nombres, direcciones |
+| `validators.ts` | Sistema de validación | Validadores reutilizables con composición y tipos seguros |
+| `date.ts` | Utilidades de fecha | Parsing, formateo, cálculos, rangos, comparaciones |
+| `cn.ts` | Utilidades CSS/Tailwind | Combinación de clases, variantes, componentes responsivos |
+
+---
+
+### 🌐 **FASE 4: Configuración de APIs (COMPLETADA)**
+
+**📁 Ubicación:** `src/lib/api/`
+
+#### **Cliente HTTP Robusto:**
+
+**📄 `client.ts`**
+- ✅ Cliente HTTP con **Axios** 
+- ✅ **Interceptores** de request/response
+- ✅ **Manejo automático de tokens JWT**
+- ✅ **Sistema de reintentos** con backoff exponencial
+- ✅ **Renovación automática de tokens**
+- ✅ **Manejo de errores** centralizado
+- ✅ **Upload/download** de archivos
+- ✅ **Health checks** automáticos
+
+#### **Sistema de Endpoints:**
+
+**📄 `endpoints.ts`**
+- ✅ **Mapeo completo** de todos los endpoints
+- ✅ **Soporte dual** SQL Server + MongoDB
+- ✅ **Rutas dinámicas** con parámetros
+- ✅ **Query string builder**
+- ✅ **Configuración por endpoint** (auth, cache, método)
+
+#### **Adaptadores de Backend:**
+
+| Adaptador | Archivo | Backend | Puerto | Funcionalidades |
+|-----------|---------|---------|--------|-----------------|
+| **SQL Server** | `adapters/sqlserver.ts` | Express + MSSQL | 3000 | Auth, Parroquias, Niveles, Catequizandos, Grupos, Inscripciones, Asistencia, **Certificados**, **Catequistas** |
+| **MongoDB** | `adapters/mongodb.ts` | Express + Mongoose | 3001 | Auth, **Usuarios**, Parroquias, Niveles, Catequizandos, Grupos, Inscripciones, Asistencia, **Logs** |
+
+#### **Servicios Implementados por Adaptador:**
+
+**🔐 Comunes (Ambos backends):**
+- `authService` - Login, logout, profile, refresh token
+- `parroquiaService` - CRUD completo + búsqueda + estadísticas  
+- `nivelService` - CRUD + ordenamiento + estadísticas
+- `catequizandoService` - CRUD + búsqueda + validaciones + historial
+- `grupoService` - CRUD + filtros por parroquia/nivel + estadísticas
+- `inscripcionService` - CRUD + validaciones + pagos + reportes
+- `asistenciaService` - CRUD + registro masivo + reportes + estadísticas
+
+**🗄️ Específicos SQL Server:**
+- `certificadoService` - Emisión individual/masiva + descarga PDF + validación
+- `catequistaService` - Gestión específica de catequistas
+
+**🍃 Específicos MongoDB:**
+- `usuarioService` - Gestión completa de usuarios + roles + permisos
+- `logService` - Logs de actividad y sistema
+
+---
+
+## 🔧 **CONFIGURACIÓN TÉCNICA**
+
+### **📦 Dependencias Instaladas:**
+```bash
+# Principales
+next@14.0.0
+react@18.0.0  
+typescript@5.0.0
+tailwindcss@3.3.0
+
+# HTTP y Estado
+axios@^1.5.1
+@tanstack/react-query@^5.0.0
+
+# UI y Utilidades  
+@heroicons/react@^2.0.18
+@headlessui/react@^1.7.17
+framer-motion@^10.16.4
+clsx
+tailwind-merge
+
+# Formularios y Validación
+react-hook-form@^7.47.0
+@hookform/resolvers@^3.3.2
+zod@^3.22.4
+
+# Fechas y Notificaciones
+date-fns@^2.30.0
+react-hot-toast@^2.4.1
+
+# Visualización
+recharts@^2.8.0
+
+# Utilidades
+js-cookie@^3.0.5
+```
+
+### **🌍 Variables de Entorno Configuradas:**
+```env
+# Backend Configuration
+NEXT_PUBLIC_API_URL=http://localhost:3000
+NEXT_PUBLIC_BACKEND_TYPE=sqlserver
+NEXT_PUBLIC_SQLSERVER_URL=http://localhost:3000  
+NEXT_PUBLIC_MONGODB_URL=http://localhost:3001
+
+# Auth Configuration
+NEXT_PUBLIC_JWT_EXPIRATION=24h
+NEXT_PUBLIC_COOKIE_NAME=catequesis_token
+
+# UI Configuration
+NEXT_PUBLIC_DEFAULT_PAGE_SIZE=10
+NEXT_PUBLIC_MAX_FILE_SIZE=5242880
+```
+
+---
+
+## 🏗️ **ARQUITECTURA IMPLEMENTADA**
+
+### **📁 Estructura de Carpetas Actual:**
+```
+src/
+├── lib/
+│   ├── types/          ✅ COMPLETADO
+│   │   ├── auth.ts     ✅ Tipos de autenticación
+│   │   ├── api.ts      ✅ Tipos de API
+│   │   ├── models.ts   ✅ Modelos del sistema
+│   │   └── ui.ts       ✅ Tipos de UI
+│   ├── utils/          ✅ COMPLETADO
+│   │   ├── constants.ts   ✅ Constantes
+│   │   ├── formatters.ts  ✅ Formateadores
+│   │   ├── validators.ts  ✅ Validaciones
+│   │   ├── date.ts        ✅ Utilidades de fecha
+│   │   └── cn.ts          ✅ Utilidades CSS
+│   └── api/            ✅ COMPLETADO
+│       ├── client.ts      ✅ Cliente HTTP
+│       ├── endpoints.ts   ✅ Endpoints
+│       └── adapters/
+│           ├── sqlserver.ts  ✅ Adaptador SQL
+│           └── mongodb.ts    ✅ Adaptador Mongo
+└── (Resto pendiente...)
+```
+
+### **🔄 Sistema de Backend Dual:**
+
+**Cambio Dinámico de Backend:**
+```typescript
+// Cambiar entre backends automáticamente
+import { switchBackend, detectAvailableBackend } from '@/lib/api/client';
+
+// Detección automática
+const backend = await detectAvailableBackend();
+if (backend) {
+  switchBackend(backend);
+}
+
+// Cambio manual
+switchBackend('mongodb'); // o 'sqlserver'
+```
+
+**Uso de Adaptadores:**
+```typescript
+// SQL Server
+import { sqlServerAdapter } from '@/lib/api/adapters/sqlserver';
+const catequizandos = await sqlServerAdapter.catequizandos.getAll();
+
+// MongoDB  
+import { mongoAdapter } from '@/lib/api/adapters/mongodb';
+const usuarios = await mongoAdapter.usuarios.getAll();
+```
+
+---
+
+## 🎨 **SISTEMA DE DISEÑO IMPLEMENTADO**
+
+### **🎨 Paleta de Colores:**
+- **Primary:** Azul marino (`#1e3a8a`) - Elementos principales
+- **Secondary:** Grises - Elementos secundarios  
+- **Success:** Verde (`#16a34a`) - Estados exitosos
+- **Warning:** Naranja (`#f59e0b`) - Advertencias y acciones
+- **Error:** Rojo (`#dc2626`) - Errores y eliminaciones
+
+### **📏 Sistema de Medidas:**
+- **Tamaños:** `xs`, `sm`, `md`, `lg`, `xl`
+- **Espaciado:** Sistema consistente con Tailwind
+- **Typography:** Inter (sans), Poppins (display)
+
+### **🧩 Utilidades CSS Avanzadas:**
+```typescript
+// Uso de utilidades cn()
+import { cn, flex, grid, spacing, responsive } from '@/lib/utils/cn';
+
+// Combinación de clases
+const buttonClass = cn(
+  'px-4 py-2 rounded-md',
+  'hover:bg-blue-600',
+  { 'opacity-50': isDisabled }
+);
+
+// Layouts responsivos
+const gridClass = grid({ cols: { base: 1, md: 2, lg: 3 } });
+const flexClass = flex({ direction: 'col', align: 'center', gap: '4' });
+```
+
+---
+
+## ✅ **VALIDACIONES Y FORMATEO**
+
+### **🔍 Sistema de Validación Robusto:**
+```typescript
+import { 
+  validateNombres, 
+  validateEmail, 
+  validateCedulaEcuador,
+  compose,
+  required,
+  minLength 
+} from '@/lib/utils/validators';
+
+// Validadores predefinidos
+const nombreResult = validateNombres('Juan Carlos');
+
+// Composición de validadores
+const passwordValidator = compose(
+  required('Password requerido'),
+  minLength(6, 'Mínimo 6 caracteres'),
+  password('Password débil')
+);
+
+// Validación de objetos
+const { isValid, errors } = validateObject(formData, {
+  nombres: validateNombres,
+  email: validateEmail,
+  cedula: validateCedulaEcuador
+});
+```
+
+### **📝 Sistema de Formateo Completo:**
+```typescript
+import { 
+  formatFullName, 
+  formatCurrency, 
+  formatDate,
+  formatRelativeTime 
+} from '@/lib/utils/formatters';
+
+// Ejemplos de uso
+formatFullName('juan carlos', 'pérez garcía'); // "Juan Carlos Pérez García"
+formatCurrency(150.50); // "$150.50"
+formatDate('2024-01-15'); // "15/01/2024" 
+formatRelativeTime('2024-01-10'); // "hace 5 días"
+```
+
+---
+
+## ❌ **LO QUE FALTA POR IMPLEMENTAR**
+
+### **🔥 FASE 5: Sistema de Autenticación (SIGUIENTE)**
+- `src/lib/auth/context.tsx` - Context de autenticación
+- `src/lib/auth/provider.tsx` - Provider de autenticación  
+- `src/lib/auth/middleware.ts` - Middleware de auth
+- `middleware.ts` - Middleware de Next.js
+- `src/lib/hooks/useAuth.ts` - Hook de autenticación
+- `src/lib/hooks/useApi.ts` - Hook de API
+- `src/lib/hooks/useLocalStorage.ts` - Hook de localStorage
+
+### **🎨 FASE 6: Estilos Globales**
+- `src/styles/globals.css` - Estilos globales
+- `src/styles/components.css` - Estilos de componentes
+- Configuración de Tailwind personalizada
+
+### **🧩 FASE 7: Componentes UI Base**
+- `src/components/ui/Button.tsx` - Componente botón
+- `src/components/ui/Input.tsx` - Componente input
+- `src/components/ui/Card.tsx` - Componente card
+- `src/components/ui/Modal.tsx` - Componente modal
+- `src/components/ui/Table.tsx` - Componente tabla
+- `src/components/ui/Select.tsx` - Componente select
+- `src/components/ui/Loading.tsx` - Componente loading
+- `src/components/ui/Alert.tsx` - Componente alert
+
+### **🏠 FASE 8: Layout Principal**
+- `src/components/layout/Navbar.tsx` - Barra de navegación
+- `src/components/layout/Sidebar.tsx` - Barra lateral  
+- `src/components/layout/Footer.tsx` - Pie de página
+- `src/components/layout/MobileMenu.tsx` - Menú móvil
+
+### **📱 FASE 9: Layouts de Next.js**
+- `src/app/layout.tsx` - Layout principal
+- `src/app/(dashboard)/layout.tsx` - Layout del dashboard
+- `src/app/auth/layout.tsx` - Layout de autenticación
+
+### **🔑 FASE 10: Páginas de Autenticación**
+- `src/app/auth/login/page.tsx` - Página de login
+- `src/app/auth/logout/page.tsx` - Página de logout
+
+### **📊 FASE 11: Dashboard Principal**
+- `src/app/(dashboard)/page.tsx` - Dashboard principal
+- `src/components/charts/DashboardStats.tsx` - Estadísticas
+- `src/components/charts/StatsCard.tsx` - Tarjetas de métricas
+
+### **👥 FASES 12-17: Módulos del Sistema**
+- **FASE 12:** Módulo de Catequizandos
+- **FASE 13:** Módulo de Catequistas  
+- **FASE 14:** Módulo de Grupos
+- **FASE 15:** Módulo de Asistencia
+- **FASE 16:** Módulo de Certificados
+- **FASE 17:** Módulos Administrativos (Parroquias, Niveles, Usuarios)
+
+### **⚙️ FASE 18: Configuración de Usuario**
+- `src/app/(dashboard)/cuenta/` - Páginas de cuenta
+- `src/components/forms/PerfilForm.tsx` - Formulario de perfil
+
+### **🔧 FASE 19: API Routes**
+- `src/app/api/auth/route.ts` - Routes de auth
+- `src/app/api/upload/route.ts` - Routes de upload
+
+### **📱 FASE 20: Componentes Avanzados**
+- `src/components/ui/DataExport.tsx` - Exportación de datos
+- `src/components/ui/FileUpload.tsx` - Subida de archivos
+- `src/components/charts/AdvancedCharts.tsx` - Gráficos avanzados
+
+---
+
+## 🚀 **CÓMO USAR LO IMPLEMENTADO**
+
+### **1. Cambiar Backend:**
+```typescript
+// En cualquier parte de la app
+import { switchBackend } from '@/lib/api/client';
+switchBackend('mongodb'); // Cambia a MongoDB
+switchBackend('sqlserver'); // Cambia a SQL Server
+```
+
+### **2. Usar Servicios de API:**
+```typescript
+// Importar adaptador específico
+import { sqlServerAdapter } from '@/lib/api/adapters/sqlserver';
+
+// Usar servicios
+const catequizandos = await sqlServerAdapter.catequizandos.getAll({
+  page: 1,
+  limit: 10,
+  search: 'Juan'
+});
+
+const parroquias = await sqlServerAdapter.parroquias.search('San Francisco');
+```
+
+### **3. Validar Formularios:**
+```typescript
+import { validateObject, validateNombres, validateEmail } from '@/lib/utils/validators';
+
+const schema = {
+  nombres: validateNombres,
+  email: validateEmail
+};
+
+const { isValid, errors } = validateObject(formData, schema);
+```
+
+### **4. Formatear Datos:**
+```typescript
+import { formatFullName, formatCurrency, formatDate } from '@/lib/utils/formatters';
+
+const nombre = formatFullName(datos.nombres, datos.apellidos);
+const precio = formatCurrency(monto);
+const fecha = formatDate(fechaNacimiento);
+```
+
+---
+
+## 🎯 **PROGRESO ACTUAL: 40% COMPLETADO**
+
+| Fase | Estado | Progreso |
+|------|--------|----------|
+| **FASE 3:** Tipos y Constantes | ✅ COMPLETADA | 100% |
+| **FASE 4:** Configuración APIs | ✅ COMPLETADA | 100% |
+| **FASE 5:** Autenticación | ⏳ SIGUIENTE | 0% |
+| **FASES 6-20:** Resto del sistema | ⏳ PENDIENTE | 0% |
+
+**📈 Progreso Total: 2/5 fases críticas = 40%**
+
+---
+
+## 📝 **NOTAS IMPORTANTES**
+
+### **🔧 Errores Corregidos:**
+- ✅ Tipos de `Validator` unificados
+- ✅ Adaptadores de backend simplificados
+- ✅ Cliente HTTP con manejo robusto de errores
+- ✅ Sistema de validación completamente funcional
+
+### **🎯 Próximos Pasos Críticos:**
+1. **FASE 5: Sistema de Autenticación** - Crítico para funcionalidad
+2. **FASE 7: Componentes UI** - Base para toda la interfaz  
+3. **FASE 11: Dashboard** - Primera pantalla funcional
+4. **FASE 12: Catequizandos** - Módulo principal del sistema
+
+### **🏆 Fortalezas del Sistema Actual:**
+- ✅ **Tipado completo** con TypeScript
+- ✅ **Arquitectura escalable** y modular
+- ✅ **Soporte dual backend** sin refactoring
+- ✅ **Sistema de validación robusto** y reutilizable
+- ✅ **Formateo consistente** de datos
+- ✅ **Cliente HTTP enterprise-grade** con reintentos y manejo de errores
+- ✅ **Utilities CSS avanzadas** para diseño rápido
+
+---
+
+**🚀 LISTO PARA CONTINUAR CON FASE 5: SISTEMA DE AUTENTICACIÓN**
+
+El proyecto tiene bases sólidas y está preparado para implementar la autenticación completa que desbloqueará el resto del desarrollo.
