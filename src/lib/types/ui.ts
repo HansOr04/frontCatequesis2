@@ -1,5 +1,5 @@
 // ===============================================
-// TIPOS DE INTERFAZ DE USUARIO
+// TIPOS DE INTERFAZ DE USUARIO - ACTUALIZADOS
 // ===============================================
 
 import { ReactNode, HTMLAttributes, ButtonHTMLAttributes, InputHTMLAttributes } from 'react';
@@ -85,7 +85,7 @@ export interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement>, Ba
 /**
  * Props para Input
  */
-export interface InputProps extends InputHTMLAttributes<HTMLInputElement>, BaseComponentProps {
+export interface InputProps extends Omit<InputHTMLAttributes<HTMLInputElement>, 'size'>, BaseComponentProps {
   label?: string;
   error?: string;
   helper?: string;
@@ -96,6 +96,9 @@ export interface InputProps extends InputHTMLAttributes<HTMLInputElement>, BaseC
   isDisabled?: boolean;
   isReadOnly?: boolean;
   variant?: 'outline' | 'filled' | 'underlined';
+  size?: Size;
+  fullWidth?: boolean;
+  showPasswordToggle?: boolean;
 }
 
 /**
@@ -105,26 +108,37 @@ export interface SelectOption {
   value: string | number;
   label: string;
   isDisabled?: boolean;
+  disabled?: boolean; // Alias para retrocompatibilidad
   description?: string;
   icon?: ReactNode;
+  searchableText?: string;
 }
 
 export interface SelectProps extends BaseComponentProps {
-  options: SelectOption[];
-  value?: string | number;
-  defaultValue?: string | number;
+  options?: SelectOption[];
+  value?: string | number | string[] | number[];
+  defaultValue?: string | number | string[] | number[];
   placeholder?: string;
   label?: string;
   error?: string;
   helper?: string;
-  isMulti?: boolean;
-  isSearchable?: boolean;
-  isLoading?: boolean;
-  isDisabled?: boolean;
+  multiple?: boolean;
+  isMulti?: boolean; // Alias para retrocompatibilidad
+  searchable?: boolean;
+  isSearchable?: boolean; // Alias para retrocompatibilidad
+  clearable?: boolean;
+  isClearable?: boolean; // Alias para retrocompatibilidad
+  loading?: boolean;
+  isLoading?: boolean; // Alias para retrocompatibilidad
+  disabled?: boolean;
+  isDisabled?: boolean; // Alias para retrocompatibilidad
   isRequired?: boolean;
-  isClearable?: boolean;
   size?: Size;
-  onChange?: (value: string | number | string[] | number[]) => void;
+  fullWidth?: boolean;
+  renderOption?: (option: SelectOption) => ReactNode;
+  renderValue?: (option: SelectOption) => ReactNode;
+  maxHeight?: number;
+  onChange?: (value: any, option?: SelectOption | SelectOption[]) => void;
   onSearch?: (query: string) => void;
 }
 
@@ -133,11 +147,20 @@ export interface SelectProps extends BaseComponentProps {
  */
 export interface CardProps extends HTMLAttributes<HTMLDivElement>, BaseComponentProps {
   variant?: 'elevated' | 'outlined' | 'filled';
-  padding?: Size;
+  padding?: Size | 'none';
+  rounded?: 'none' | 'sm' | 'md' | 'lg' | 'full';
   header?: ReactNode;
   footer?: ReactNode;
-  isHoverable?: boolean;
-  isClickable?: boolean;
+  title?: string;
+  subtitle?: string;
+  extra?: ReactNode;
+  hoverable?: boolean;
+  isHoverable?: boolean; // Alias para retrocompatibilidad
+  clickable?: boolean;
+  isClickable?: boolean; // Alias para retrocompatibilidad
+  fullWidth?: boolean;
+  fullHeight?: boolean;
+  loading?: boolean;
 }
 
 /**
@@ -145,16 +168,20 @@ export interface CardProps extends HTMLAttributes<HTMLDivElement>, BaseComponent
  */
 export interface ModalProps extends BaseComponentProps {
   isOpen: boolean;
-  onClose: () => void;
+  onClose?: () => void;
   title?: string;
-  size?: Size | 'full';
+  size?: Size | 'full' | '2xl' | '3xl' | '4xl' | '5xl';
   placement?: 'center' | 'top';
+  centered?: boolean;
   closeOnOverlayClick?: boolean;
-  closeOnEsc?: boolean;
+  closeOnEscape?: boolean;
+  closeOnEsc?: boolean; // Alias para retrocompatibilidad
   showCloseButton?: boolean;
   preventScroll?: boolean;
   header?: ReactNode;
   footer?: ReactNode;
+  loading?: boolean;
+  overlayClassName?: string;
   onOpenComplete?: () => void;
   onCloseComplete?: () => void;
 }
@@ -323,9 +350,9 @@ export interface FormBuilderProps extends BaseComponentProps {
 // ===============================================
 
 /**
- * Tipos de toast
+ * Tipos de toast/alert
  */
-export type ToastType = 'success' | 'error' | 'warning' | 'info';
+export type ToastType = 'success' | 'error' | 'warning' | 'info' | 'neutral';
 
 /**
  * Configuración de toast
@@ -346,13 +373,18 @@ export interface ToastConfig {
  * Props para Alert
  */
 export interface AlertProps extends BaseComponentProps {
-  type: ToastType;
+  type?: ToastType;
   title?: string;
   description?: string;
-  isClosable?: boolean;
+  showIcon?: boolean;
+  closable?: boolean;
+  isClosable?: boolean; // Alias para retrocompatibilidad
   onClose?: () => void;
   icon?: ReactNode;
   action?: ReactNode;
+  actions?: ReactNode;
+  autoClose?: boolean;
+  autoCloseDelay?: number;
 }
 
 /**
@@ -360,6 +392,7 @@ export interface AlertProps extends BaseComponentProps {
  */
 export interface LoadingProps extends BaseComponentProps {
   size?: Size;
+  variant?: 'circular' | 'dots' | 'bars' | 'pulse' | 'church';
   color?: ColorVariant;
   text?: string;
   overlay?: boolean;
@@ -425,18 +458,23 @@ export interface ChartProps extends BaseComponentProps {
 export interface TooltipProps extends BaseComponentProps {
   content: ReactNode;
   placement?: Position;
-  trigger?: 'hover' | 'click' | 'focus';
+  trigger?: 'hover' | 'click' | 'focus' | 'manual';
   delay?: number;
+  hideDelay?: number;
   offset?: number;
   arrow?: boolean;
   isDisabled?: boolean;
+  disabled?: boolean; // Alias para retrocompatibilidad
+  maxWidth?: number;
+  visible?: boolean;
+  onVisibleChange?: (visible: boolean) => void;
 }
 
 /**
  * Props para Badge
  */
 export interface BadgeProps extends BaseComponentProps {
-  variant?: 'solid' | 'outline' | 'soft';
+  variant?: 'solid' | 'outline' | 'soft' | 'dot';
   color?: ColorVariant;
   size?: Size;
   shape?: 'rounded' | 'square';
@@ -444,6 +482,37 @@ export interface BadgeProps extends BaseComponentProps {
   count?: number;
   showZero?: boolean;
   max?: number;
+  pulse?: boolean;
+  removable?: boolean;
+  onRemove?: () => void;
+}
+
+/**
+ * Props para Avatar
+ */
+export interface AvatarProps extends BaseComponentProps {
+  src?: string;
+  alt?: string;
+  name?: string;
+  size?: Size | '2xl';
+  shape?: 'circle' | 'square' | 'rounded';
+  fallback?: ReactNode;
+  showBorder?: boolean;
+  status?: 'online' | 'offline' | 'busy' | 'away';
+  badge?: ReactNode;
+  onClick?: () => void;
+  loading?: boolean;
+}
+
+/**
+ * Props para AvatarGroup
+ */
+export interface AvatarGroupProps extends BaseComponentProps {
+  children: React.ReactElement<AvatarProps>[];
+  max?: number;
+  spacing?: 'tight' | 'normal' | 'loose';
+  size?: AvatarProps['size'];
+  showTooltip?: boolean;
 }
 
 /**
