@@ -5,7 +5,12 @@
 'use client';
 
 import { useCallback, useEffect, useState } from 'react';
-import { useAuth as useAuthContext } from '../auth/context';
+import { 
+  useAuth as useAuthContext,
+  useUserInfo,
+  usePermissions,
+  useAuthActions
+} from '../auth/context';
 import type { LoginCredentials, User, UserRole } from '../types/auth';
 import { AUTH_CONFIG } from '../utils/constants';
 
@@ -69,7 +74,7 @@ export function useLogin() {
 /**
  * Hook para verificar permisos específicos
  */
-export function usePermissions(requiredPermissions?: string | string[]) {
+export function usePermissionsCheck(requiredPermissions?: string | string[]) {
   const { hasPermission, hasRole, permissions, role } = useAuth();
   
   const checkPermissions = useCallback((perms: string | string[]) => {
@@ -109,7 +114,7 @@ export function usePermissions(requiredPermissions?: string | string[]) {
  */
 export function useUserProfile() {
   const { user, updateUser, isAuthenticated } = useAuth();
-  const [isUpdating, setIsUpdating] = useState(false);
+  const [isUpdating, setIsUpdating] = useState<boolean>(false);
   const [updateError, setUpdateError] = useState<string | null>(null);
 
   const updateProfile = useCallback(async (profileData: Partial<User>) => {
@@ -151,7 +156,7 @@ export function useUserProfile() {
 export function useTokenExpiration() {
   const { isAuthenticated } = useAuth();
   const [timeUntilExpiration, setTimeUntilExpiration] = useState<number | null>(null);
-  const [isNearExpiration, setIsNearExpiration] = useState(false);
+  const [isNearExpiration, setIsNearExpiration] = useState<boolean>(false);
 
   useEffect(() => {
     if (!isAuthenticated) {
@@ -236,7 +241,7 @@ export function usePermissionGuard(requiredPermissions: string | string[]) {
  */
 export function useLogout() {
   const { logout } = useAuth();
-  const [isLoggingOut, setIsLoggingOut] = useState(false);
+  const [isLoggingOut, setIsLoggingOut] = useState<boolean>(false);
 
   const logoutWithConfirmation = useCallback(async (skipConfirmation = false) => {
     if (!skipConfirmation) {
@@ -273,8 +278,8 @@ export function useLogout() {
  */
 export function useUserActivity() {
   const { isAuthenticated } = useAuth();
-  const [lastActivity, setLastActivity] = useState(Date.now());
-  const [isActive, setIsActive] = useState(true);
+  const [lastActivity, setLastActivity] = useState<number>(Date.now());
+  const [isActive, setIsActive] = useState<boolean>(true);
 
   useEffect(() => {
     if (!isAuthenticated) return;
@@ -336,8 +341,9 @@ export function useSessionInfo() {
 // Re-exportar los hooks del context para conveniencia
 export {
   useAuthContext,
-  useIsAuthenticated,
-  useCurrentUser,
   useUserInfo,
+  usePermissions,
   useAuthActions,
 } from '../auth/context';
+
+export default useAuth;

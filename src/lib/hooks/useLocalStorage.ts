@@ -64,7 +64,7 @@ export function useLocalStorage<T>(
     }
   });
 
-  const setValueRef = useRef<(value: T | ((prev: T) => T)) => void>();
+  const setValueRef = useRef<((value: T | ((prev: T) => T)) => void) | null>(null);
 
   const setValue = useCallback((value: T | ((prev: T) => T)) => {
     try {
@@ -332,7 +332,7 @@ export function useSearchHistory(maxItems: number = 10) {
  */
 export function useSidebarState() {
   const [isCollapsed, setIsCollapsed] = useLocalStorageBoolean('sidebar-collapsed', false);
-  const [isMobileOpen, setIsMobileOpen] = useState(false);
+  const [isMobileOpen, setIsMobileOpen] = useState<boolean>(false);
 
   const toggleSidebar = useCallback(() => {
     setIsCollapsed(prev => !prev);

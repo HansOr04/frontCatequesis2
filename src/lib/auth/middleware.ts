@@ -3,8 +3,20 @@
 // ===============================================
 
 import { NextRequest, NextResponse } from 'next/server';
-import type { UserRole } from '../types/auth';
-import { AUTH_CONFIG, ROUTES } from '../utils/constants';
+
+// Tipos locales para evitar dependencias circulares
+type UserRole = 'admin' | 'parroco' | 'secretaria' | 'catequista' | 'consulta';
+
+// Constantes locales
+const AUTH_CONFIG = {
+  tokenKey: 'catequesis_token',
+  refreshTokenKey: 'catequesis_refresh_token',
+  userKey: 'catequesis_user',
+  sessionTimeout: 24 * 60 * 60 * 1000, // 24 horas
+  refreshThreshold: 5 * 60 * 1000, // 5 minutos antes de expirar
+  maxLoginAttempts: 5,
+  lockoutDuration: 15 * 60 * 1000, // 15 minutos
+};
 
 /**
  * Configuración de rutas protegidas

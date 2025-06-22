@@ -5,7 +5,7 @@
 'use client';
 
 import { createContext, useContext } from 'react';
-import type { AuthContextType } from '../types/auth';
+import type { AuthContextType, UserRole } from '../types/auth';
 
 /**
  * Context de autenticación
@@ -129,8 +129,8 @@ export function useAuth() {
     canCreate: permissions.hasPermission('create') || userInfo.role === 'admin',
     canEdit: permissions.hasPermission('update') || userInfo.role === 'admin',
     canDelete: permissions.hasPermission('delete') || userInfo.role === 'admin',
-    canViewAll: permissions.hasRole(['admin', 'parroco']),
-    canManage: permissions.hasRole(['admin', 'parroco', 'secretaria']),
+    canViewAll: permissions.hasRole(['admin', 'parroco'] as UserRole[]),
+    canManage: permissions.hasRole(['admin', 'parroco', 'secretaria'] as UserRole[]),
   };
 }
 
@@ -165,7 +165,7 @@ export function withAuth<P extends object>(
  */
 export function withRole<P extends object>(
   Component: React.ComponentType<P>,
-  requiredRoles: string | string[]
+  requiredRoles: UserRole | UserRole[]
 ): React.ComponentType<P> {
   return function RoleProtectedComponent(props: P) {
     const { hasRole, isLoading, isAuthenticated } = useAuth();

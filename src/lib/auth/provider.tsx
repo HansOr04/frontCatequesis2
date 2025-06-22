@@ -411,7 +411,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
               payload: {
                 user,
                 token: storedToken,
-                refreshToken: getStorageItem(AUTH_CONFIG.refreshTokenKey),
+                refreshToken: getStorageItem(AUTH_CONFIG.refreshTokenKey) || undefined,
               },
             });
             
